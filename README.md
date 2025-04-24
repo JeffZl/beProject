@@ -112,12 +112,21 @@ Aplikasi akan berjalan di: [http://localhost:3000](http://localhost:3000)
 
 ## 🧰 Teknologi yang Digunakan
 
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose)
-- **Frontend Rendering**: EJS Templates
-- **Authentication**: JSON Web Token (JWT)
-- **API**: Spotify Web API
-- **Storage**: Local Storage untuk playback status
+Aplikasi Jaxe Music Player dibangun menggunakan teknologi berikut:
+
+| Teknologi      | Deskripsi                                                                 |
+|----------------|--------------------------------------------------------------------------|
+| **Node.js**    | Runtime JavaScript untuk backend.                                         |
+| **Express.js** | Framework backend minimalis untuk routing dan middleware.                |
+| **MongoDB**    | Basis data NoSQL untuk menyimpan pengguna, playlist, dan lagu.           |
+| **EJS**        | Template engine untuk rendering halaman HTML dari server.                |
+| **JWT**        | JSON Web Token untuk sistem autentikasi.                                 |
+| **Bcrypt**     | Untuk hashing dan verifikasi password.                                   |
+| **Axios**      | HTTP client untuk komunikasi dengan Spotify API.                         |
+| **Cookie-Parser** | Middleware untuk parsing cookie dalam request HTTP.                  |
+| **CORS**       | Middleware untuk menangani Cross-Origin Resource Sharing.                |
+| **dotenv**     | Untuk mengelola konfigurasi environment (.env).                          |
+| **Path**       | Utilitas Node.js untuk menangani path file dan direktori.                |
 
 ---
 
