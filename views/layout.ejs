@@ -1,0 +1,154 @@
+<!-- views/layout.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Metadata untuk halaman -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Menampilkan judul halaman yang dinamis menggunakan EJS -->
+    <title><%= title %></title>
+
+    <!-- Menyertakan file CSS eksternal -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <!-- Menyertakan pustaka ikon Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+</head>
+<body>
+<header>
+    <!-- Sidebar Menu -->
+    <div class="menu_side">
+        <!-- Header untuk Sidebar -->
+        <h1>Playlist</h1>
+        <div class="playlist">
+            <!-- Menu untuk mengakses halaman Playlist -->
+            <a href="/userplaylist" style="text-decoration:none;">
+                <h4 class="active"><span></span><i class="bi bi-music-note-beamed"></i> Playlist</h4>
+            </a>
+            <!-- Menu untuk mengakses halaman rekomendasi musik -->
+            <a href="/" style="text-decoration:none;">
+                <h4><span></span><i class="bi bi-music-note-beamed"></i> Recommend</h4>
+            </a>
+        </div>
+        <!-- Menyediakan area untuk menampilkan daftar lagu (dalam proses dinamis) -->
+        <div class="menu_song" id="menu_song">
+            <!-- Data lagu akan dimuat di sini -->
+        </div>
+    </div>
+
+    <!-- Konten utama yang dinamis -->
+    <div class="song_side">
+        <nav>
+            <!-- Navigasi utama (misalnya "Discover") -->
+            <ul>
+                <li>Discover <span></span></li>
+            </ul>
+            <!-- Form pencarian musik -->
+            <div class="search">
+                <i class="bi bi-search"></i>
+                <input name="q" id="searchMusic" type="text" placeholder="Search Music..." autocomplete="off">
+            </div>
+            <!-- Menu profil pengguna -->
+            <div class="user">
+                <!-- Gambar profil pengguna -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="User" id="pp" title="Click to open profile">
+                <!-- Popup yang menampilkan info pengguna -->
+                <div id="profilePopup" class="profile-popup">
+                    <h3>Hi there!</h3>
+                    <h4 id="username">
+                        <p id="greetingText"></p>
+                    </h4>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        <!-- Tombol Sign Out -->
+                        <button class="sign-out-button" onclick="signOut()">Sign Out</button>
+                        <!-- Tombol Delete Account -->
+                        <button class="delete-account-button" onclick="deleteAcc()">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- Konten dinamis akan dimuat di sini -->
+        <%- body %>
+    </div>
+
+    <!-- Footer dengan kontrol pemutar musik -->
+    <div class="master_play">
+        <!-- Animasi gelombang -->
+        <div class="wave">
+            <div class="wave1"></div>
+            <div class="wave1"></div>
+            <div class="wave1"></div>
+        </div>
+        <!-- Gambar sampul lagu -->
+        <img src="/img/empty.png" alt="Alan" id="poster_master_play" />
+        <!-- Judul lagu yang sedang diputar -->
+        <h5 id="title">-<br /><div class="subtitle">-</div></h5>
+        <!-- Ikon kontrol pemutar -->
+        <div class="icon">
+            <i class="bi bi-skip-start-fill" id="back"></i>
+            <i class="bi bi-play-fill" id="masterPlay"></i>
+            <i class="bi bi-skip-end-fill" id="next"></i>
+        </div>
+        <!-- Menampilkan waktu lagu yang sedang diputar -->
+        <span id="currentStart">0.00</span>
+        <!-- Kontrol untuk progress musik -->
+        <div class="bar">
+            <input type="range" id="seek" min="0" value="0" max="0" />
+            <div class="bar2" id="bar2"></div>
+            <div class="dot"></div>
+        </div>
+        <!-- Menampilkan durasi lagu -->
+        <span id="currentEnd">0.00</span>
+        <!-- Kontrol volume -->
+        <div class="vol">
+            <i class="bi bi-volume-down-fill" id="vol_icon"></i>
+            <input type="range" id="vol" min="0" value="0" max="100" />
+            <div class="vol_bar"></div>
+            <div class="dot" id="vol_dot"></div>
+        </div>
+    </div>
+</header>
+
+<!-- Menyertakan file JavaScript eksternal -->
+<script src="/js/app.js"></script>
+<script>
+    // Menunggu dokumen selesai dimuat
+    document.addEventListener("DOMContentLoaded", () => {
+        // Mendapatkan elemen input pencarian
+        const searchInput = document.getElementById("searchMusic");
+
+        // Menambahkan event listener untuk pencarian saat tombol Enter ditekan
+        if (searchInput) {
+            searchInput.addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        // Mengarahkan pengguna ke halaman hasil pencarian
+                        window.location.href = `/searchresult?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        }
+
+        // Mendapatkan elemen untuk popup profil pengguna
+        const userIcon = document.querySelector(".user");
+        const profilePopup = document.getElementById("profilePopup");
+
+        // Menambahkan event listener untuk membuka atau menutup popup profil
+        if (userIcon && profilePopup) {
+            userIcon.addEventListener("click", (e) => {
+                e.stopPropagation();
+                profilePopup.classList.toggle("show");
+            });
+
+            // Menyembunyikan popup jika pengguna mengklik di luar elemen userIcon
+            document.addEventListener("click", (e) => {
+                if (!userIcon.contains(e.target)) {
+                    profilePopup.classList.remove("show");
+                }
+            });
+        }
+    });
+</script>
+    
+</body>
+</html>

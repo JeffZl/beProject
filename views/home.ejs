@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Menghubungkan file CSS eksternal untuk styling halaman -->
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Menghubungkan ikon font dari Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <title>Music App</title>
+</head>
+<body>
+  <!-- Konten utama halaman -->
+  <div class="content">
+    <h1>Welcome!</h1>
+    <div class="buttons">
+      <!-- Tombol opsional dapat ditambahkan di sini -->
+    </div>
+  </div>
+
+  <!-- Bagian lagu populer -->
+  <div class="popular_song">
+    <div class="h4">
+      <h4>Popular Song</h4>
+      <div class="btn_s">
+        <!-- Tombol untuk scroll kiri dan kanan -->
+        <i id="left_scroll" class="bi bi-arrow-left-short"></i>
+        <i id="right_scroll" class="bi bi-arrow-right-short"></i>
+      </div>
+    </div>
+    <!-- Tempat untuk menampilkan data lagu populer -->
+    <div class="pop_song" id="pop_song">
+      <!-- Data lagu akan dimuat di sini -->
+    </div>
+  </div>
+
+  <!-- Menyertakan file JavaScript eksternal untuk fungsionalitas -->
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Mendapatkan elemen-elemen DOM yang dibutuhkan
+      const seek = document.getElementById('seek');
+      const bar2 = document.getElementById('bar2');
+      const dot = document.getElementsByClassName('dot')[0];
+      const currentStart = document.getElementById('currentStart');
+      const currentEnd = document.getElementById('currentEnd');
+      const wave = document.getElementById('wave'); // Optional
+
+      let vol_icon = document.getElementById("vol_icon");
+      let vol = document.getElementById("vol");
+      let vol_dot = document.getElementById("vol_dot");
+      let vol_bar = document.getElementsByClassName('vol_bar')[0];
+      let masterPlay = document.getElementById('masterPlay');
+
+      // Membuat instance audio global
+      let music = window.currentAudio || new Audio();
+      window.currentAudio = music;
+
+      // Mendapatkan data musik dari localStorage
+      const musicData = JSON.parse(localStorage.getItem("currentMusic"));
+
+      if (musicData) {
+        const { currentTime, volume, currentSong, isPlaying } = musicData;
+
+        // Jika musik sedang diputar, hentikan dan mulai ulang
+        if (!music.paused && !music.ended) {
+          music.pause();
+          music.currentTime = 0;
+        }
+
+        // Mengatur sumber audio, waktu saat ini, dan volume
+        music.src = `audio/${currentSong.id}.mp3`;
+        music.currentTime = currentTime;
+        music.volume = volume;
+
+        // Mengatur elemen-elemen UI seperti poster dan judul
+        document.getElementById('poster_master_play').src = currentSong.cover;
+        document.getElementById('title').innerHTML =
+          `${currentSong.title}<br><div class="subtitle">${currentSong.artists.join(", ")}</div>`;
+
+        // Memulai musik jika sebelumnya sudah diputar
+        if (isPlaying === 1) {
+          music.play();
+          masterPlay.classList.remove('bi-play-fill');
+          masterPlay.classList.add('bi-pause-fill');
+          wave?.classList.add('active2');
+        }
+
+        // Menambahkan event listener untuk mengatur durasi musik
+        music.addEventListener('loadedmetadata', () => {
+          seek.max = Math.floor(music.duration);
+          const min = Math.floor(music.duration / 60);
+          const sec = String(Math.floor(music.duration % 60)).padStart(2, '0');
+          currentEnd.innerText = `${min}:${sec}`;
+        });
+
+        // Menambahkan event listener untuk mengupdate waktu musik saat diputar
+        music.addEventListener('timeupdate', () => {
+          const current = music.currentTime;
+          seek.value = Math.floor(current);
+          const min = Math.floor(current / 60);
+          const sec = String(Math.floor(current % 60)).padStart(2, '0');
+          currentStart.innerText = `${min}:${sec}`;
+
+          // Mengupdate progress bar sesuai waktu yang telah dimainkan
+          const progress = (current / music.duration) * 100;
+          bar2.style.width = `${progress}%`;
+          dot.style.left = `${progress}%`;
+        });
+
+        // Menambahkan event listener untuk mengubah waktu musik saat seek bar digeser
+        seek.addEventListener('input', () => {
+          music.currentTime = seek.value;
+        });
+
+        // Mengatur volume saat slider volume digeser
+        vol.addEventListener("change", () => {
+          let volValue = vol.value;
+          music.volume = volValue / 100;
+          vol_bar.style.width = `${volValue}%`;
+          vol_dot.style.left = `${volValue}%`;
+
+          // Mengubah ikon volume sesuai dengan tingkat volume
+          if (volValue == 0) {
+            vol_icon.className = "bi bi-volume-mute-fill";
+          } else if (volValue > 50) {
+            vol_icon.className = "bi bi-volume-up-fill";
+          } else {
+            vol_icon.className = "bi bi-volume-down-fill";
+          }
+        });
+
+        // Menambahkan event listener untuk tombol play/pause
+        masterPlay.addEventListener('click', () => {
+          if (music.paused || music.currentTime <= 0) {
+            music.play();
+            masterPlay.classList.remove('bi-play-fill');
+            masterPlay.classList.add('bi-pause-fill');
+            wave?.classList.add('active2');
+          } else {
+            music.pause();
+            masterPlay.classList.add('bi-play-fill');
+            masterPlay.classList.remove('bi-pause-fill');
+            wave?.classList.remove('active2');
+          }
+
+          // Menyimpan status musik di localStorage
+          const updatedData = {
+            currentSong,
+            currentTime: music.currentTime,
+            volume: music.volume,
+            isPlaying: music.paused ? 0 : 1,
+          };
+          localStorage.setItem("currentMusic", JSON.stringify(updatedData));
+        });
+
+        // Menambahkan event listener untuk ketika musik selesai
+        music.addEventListener("ended", () => {
+          const updatedData = {
+            currentSong,
+            currentTime: music.currentTime,
+            volume: music.volume,
+            isPlaying: 0,
+          };
+          localStorage.setItem("currentMusic", JSON.stringify(updatedData));
+        });
+
+        // Menyimpan status musik sebelum meninggalkan halaman
+        window.addEventListener("beforeunload", () => {
+          const updatedData = {
+            currentSong,
+            currentTime: music.currentTime,
+            volume: music.volume,
+            isPlaying: music.paused ? 0 : 1,
+          };
+          localStorage.setItem("currentMusic", JSON.stringify(updatedData));
+        });
+      }
+    });
+  </script>
+</body>
+</html>

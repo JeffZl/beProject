@@ -1,0 +1,209 @@
+<div class="content">
+  <!-- Judul Playlist yang tampil dengan warna putih -->
+  <h2 style="color: white;" id="playlistTitle">Your Playlist</h2>
+  <!-- Div untuk menampilkan daftar playlist yang dimuat, menggunakan flexbox untuk penataan -->
+  <div id="playlist" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem;"></div>
+</div>
+
+<!-- Menyertakan file JavaScript eksternal untuk pengaturan aplikasi -->
+<script src="/js/app.js"></script>
+
+<script>
+  // Mengambil elemen dengan ID 'playlist' untuk menampilkan daftar lagu
+  const playlistDiv = document.getElementById('playlist');
+
+  // Fungsi untuk memuat playlist dari server menggunakan fetch API
+  const loadPlaylist = async () => {
+    try {
+      // Melakukan permintaan GET ke server untuk mendapatkan playlist
+      const response = await fetch("http://localhost:3000/playlist", {
+        method: "GET",
+        credentials: "include"  // Mengirimkan kredensial pengguna jika diperlukan
+      });
+
+      const data = await response.json(); // Mengonversi respons ke format JSON
+      playlistDiv.innerHTML = ""; // Menghapus isi sebelumnya di div playlist
+
+      // Menampilkan pesan error jika respons tidak berhasil
+      if (!response.ok) {
+        playlistDiv.innerHTML = `<p style='color: white;'>Error loading playlist: ${data.error}</p>`;
+        return;
+      }
+
+      // Menampilkan pesan jika playlist kosong
+      if (!data.length) {
+        playlistDiv.innerHTML = "<p style='color: white;'>Your playlist is empty!</p>";
+        return;
+      }
+
+      // Iterasi melalui setiap lagu dalam playlist dan menambahkan elemen ke halaman
+      data.forEach(track => {
+        const div = document.createElement('div');
+        div.style = "background:#1e2738; padding:10px; border-radius:10px; width:100%; display: flex; gap: 1rem; align-items:center;";
+
+        // Menambahkan elemen gambar, judul lagu, dan tombol hapus untuk setiap lagu
+        div.innerHTML = `
+          <img src="${track.poster}" alt="${track.title}" style="width:60px;height:60px; border-radius:8px; object-fit:cover;">
+          <div>
+            <p style="color:#fff; font-size:1rem; margin:0;">${track.title}</p>
+            <p style="color:#888; font-size:0.85rem; margin:0.25rem 0 0;">${track.artist}</p>
+          </div>
+          <button onclick="removeFromPlaylist('${track.id}')" style="margin-left:auto; padding:10px; background-color:#dc3545; color:white; border:none; border-radius:50%; cursor:pointer; width:40px; height:40px; display:flex; justify-content:center; align-items:center; font-size:16px;">&times;</button>
+        `;
+        playlistDiv.appendChild(div); // Menambahkan elemen div yang telah dibuat ke dalam playlistDiv
+      });
+
+    } catch (err) {
+      // Menangani error jika fetch gagal
+      console.error("Failed to load playlist:", err);
+      playlistDiv.innerHTML = "<p style='color: white;'>Something went wrong while fetching your playlist.</p>";
+    }
+  };
+
+  // Fungsi untuk menghapus lagu dari playlist
+  const removeFromPlaylist = async (trackId) => {
+    try {
+      // Mengirim permintaan DELETE untuk menghapus lagu berdasarkan trackId
+      const response = await fetch(`http://localhost:3000/playlist/${trackId}`, {
+        method: "DELETE",
+        credentials: "include" // Mengirimkan kredensial pengguna jika diperlukan
+      });
+
+      const data = await response.json(); // Mengonversi respons ke format JSON
+
+      // Menampilkan pesan error jika penghapusan gagal
+      if (!response.ok) {
+        alert(`Error: ${data.error}`);
+        return;
+      }
+
+      // Memberi notifikasi bahwa lagu berhasil dihapus dan memuat ulang playlist
+      alert("Track removed from your playlist.");
+      loadPlaylist(); // Memuat ulang playlist setelah penghapusan
+
+    } catch (err) {
+      // Menangani error jika penghapusan gagal
+      console.error("Failed to remove track:", err);
+      alert("Something went wrong while removing the track.");
+    }
+  };
+
+  // Event listener untuk menyiapkan elemen-elemen pemutar musik saat halaman dimuat
+  document.addEventListener("DOMContentLoaded", () => {
+    // Mendapatkan elemen-elemen kontrol pemutar musik
+    const seek = document.getElementById('seek');
+    const bar2 = document.getElementById('bar2');
+    const dot = document.getElementsByClassName('dot')[0];
+    const currentStart = document.getElementById('currentStart');
+    const currentEnd = document.getElementById('currentEnd');
+    const wave = document.getElementById("wave");
+    const music = new Audio();  // Membuat objek Audio baru untuk memutar musik
+
+    let vol_icon = document.getElementById("vol_icon");
+    let vol = document.getElementById("vol");
+    let vol_dot = document.getElementById("vol_dot");
+    let vol_bar = document.getElementsByClassName('vol_bar')[0];
+    let masterPlay = document.getElementById('masterPlay');
+
+    // Mendapatkan data musik yang sedang diputar dari localStorage
+    const musicData = JSON.parse(localStorage.getItem("currentMusic"));
+    const { currentTime, volume, currentSong, isPlaying } = musicData || {};
+
+    if (musicData && currentSong) {
+      // Mengatur sumber musik dan posisi waktu yang terakhir diputar
+      const audioPath = `audio/${currentSong.id}.mp3`;
+      music.src = audioPath;
+      music.currentTime = currentTime || 0;
+      music.volume = volume ?? 1;
+
+      // Mengatur poster dan judul lagu
+      document.getElementById('poster_master_play').src = currentSong.cover;
+      document.getElementById('title').innerHTML = `${currentSong.title}<br><div class="subtitle">${currentSong.artists.join(", ")}</div>`;
+
+      // Memulai musik jika sebelumnya sedang diputar
+      if (isPlaying === 1) {
+        music.play();
+        masterPlay.classList.remove('bi-play-fill');
+        masterPlay.classList.add('bi-pause-fill');
+        wave.classList.add('active2');
+      }
+
+      // Mengatur metadata musik, seperti durasi
+      music.addEventListener('loadedmetadata', () => {
+        seek.max = Math.floor(music.duration);
+        const min = Math.floor(music.duration / 60);
+        const sec = String(Math.floor(music.duration % 60)).padStart(2, '0');
+        currentEnd.innerText = `${min}:${sec}`;
+      });
+
+      // Menyimpan status musik ketika selesai diputar
+      music.addEventListener("ended", () => {
+        localStorage.setItem("currentMusic", JSON.stringify({
+          currentSong,
+          currentTime: music.currentTime,
+          volume: music.volume,
+          isPlaying: 0,
+        }));
+      });
+
+      // Mengatur kontrol tombol play/pause
+      masterPlay.addEventListener('click', () => {
+        if (music.paused || music.currentTime <= 0) {
+          music.play();
+          masterPlay.classList.remove('bi-play-fill');
+          masterPlay.classList.add('bi-pause-fill');
+          wave.classList.add('active2');
+        } else {
+          music.pause();
+          masterPlay.classList.add('bi-play-fill');
+          masterPlay.classList.remove('bi-pause-fill');
+          wave.classList.remove('active2');
+        }
+
+        // Menyimpan status pemutaran musik
+        localStorage.setItem("currentMusic", JSON.stringify({
+          currentSong,
+          currentTime: music.currentTime,
+          volume: music.volume,
+          isPlaying: !music.paused ? 1 : 0,
+        }));
+      });
+
+      // Mengupdate posisi progress bar dan waktu yang sedang diputar
+      music.addEventListener('timeupdate', () => {
+        let current = music.currentTime;
+        seek.value = Math.floor(current);
+        const min = Math.floor(current / 60);
+        const sec = String(Math.floor(current % 60)).padStart(2, '0');
+        currentStart.innerText = `${min}:${sec}`;
+
+        let progress = (current / music.duration) * 100;
+        bar2.style.width = `${progress}%`;
+        dot.style.left = `${progress}%`;
+      });
+
+      // Mengatur progress musik saat seek bar diubah
+      seek.addEventListener('input', () => {
+        music.currentTime = seek.value;
+      });
+
+      // Mengatur kontrol volume
+      vol.addEventListener("change", () => {
+        const volVal = vol.value;
+        if (volVal == 0) {
+          vol_icon.className = "bi bi-volume-mute-fill";
+        } else if (volVal <= 50) {
+          vol_icon.className = "bi bi-volume-down-fill";
+        } else {
+          vol_icon.className = "bi bi-volume-up-fill";
+        }
+        vol_bar.style.width = `${volVal}%`;
+        vol_dot.style.left = `${volVal}%`;
+        music.volume = volVal / 100;
+      });
+    }
+  });
+
+  // Memuat playlist saat halaman dimuat pertama kali
+  loadPlaylist();
+</script>

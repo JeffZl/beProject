@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <!-- Menyertakan CSS Bootstrap untuk styling halaman -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Menyertakan ikon Bootstrap untuk penggunaan ikon -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    /* Styling untuk body halaman */
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+    }
+
+    /* Styling untuk sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: #343a40;
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+
+    .sidebar h4 {
+      margin-bottom: 30px;
+      color: #fff;
+    }
+
+    .sidebar a {
+      color: #adb5bd;
+      text-decoration: none;
+      display: block;
+      margin: 15px 0;
+    }
+
+    .sidebar a:hover {
+      color: white;
+    }
+
+    /* Styling untuk konten utama */
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+    }
+
+    /* Styling untuk container tabel */
+    .table-container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .table th, .table td {
+      vertical-align: middle;
+    }
+
+    /* Styling untuk filter dropdown */
+    .filter-container {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h4><i class="bi bi-shield-lock-fill me-2"></i>Admin</h4>
+    <!-- Navigasi ke halaman pengguna dan playlist -->
+    <a href="#users"><i class="bi bi-people-fill me-2"></i>Users</a>
+    <a href="#playlists"><i class="bi bi-music-note-list me-2"></i>Playlists</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <!-- Filter Pengguna Section -->
+    <div class="filter-container">
+      <select id="roleFilter" class="form-select" onchange="filterUsers()">
+        <option value="all">All Users</option>
+        <option value="admin">Admin Users</option>
+        <option value="non-admin">Non-Admin Users</option>
+      </select>
+    </div>
+
+    <!-- Tabel Pengguna -->
+    <div id="users" class="table-container mb-5">
+      <h4>Users</h4>
+      <!-- Tombol untuk mengubah peran pengguna yang dipilih menjadi Admin atau sebaliknya -->
+      <button class="btn btn-success mb-3" onclick="setSelectedAsAdmin()">Set Selected as Admin / Demote to User</button>
+      <table class="table table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" /></th>
+            <th>#</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>User ID</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody">
+          <!-- EJS digunakan untuk merender data pengguna -->
+          <% users.forEach((user, index) => { %>
+            <tr class="<%= user.role === 'admin' ? 'admin' : 'non-admin' %>">
+              <td><input type="checkbox" class="user-checkbox" value="<%= user._id %>" /></td>
+              <td><%= index + 1 %></td>
+              <td><%= user.username %></td>
+              <td><%= user.role %></td>
+              <td><%= user._id %></td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('<%= user._id %>')">
+                  <i class="bi bi-trash"></i> Delete Account
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tabel Playlist -->
+    <div id="playlists" class="table-container">
+      <h4>Playlists</h4>
+      <table class="table table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Tracks</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- EJS digunakan untuk merender data playlist -->
+          <% playlists.forEach((pl, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= pl.username || 'Unknown User' %></td>
+              <td><%= (pl.tracks && pl.tracks.length) || 0 %></td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deletePlaylist('<%= pl._id %>')">
+                  <i class="bi bi-trash"></i> Delete Playlist
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Fungsi untuk menghapus playlist
+    function deletePlaylist(playlistId) {
+      // Konfirmasi penghapusan
+      if (confirm("Delete this playlist?")) {
+        // Kirim request DELETE ke server untuk menghapus playlist
+        fetch(`/admin/playlist/${playlistId}`, {
+          method: 'DELETE',
+          credentials: "include"
+        }).then(res => res.json())
+          .then(data => {
+            alert(data.message || 'Playlist deleted.');
+            location.reload();
+          });
+      }
+    }
+
+    // Fungsi untuk menghapus pengguna
+    function deleteUser(userId) {
+      if (confirm("Delete the user?")) {
+        // Kirim request DELETE ke server untuk menghapus pengguna
+        fetch(`/user/${userId}`, {
+          method: "DELETE"
+        }).then(res => res.json())
+          .then(data => {
+            alert(data.message);
+            location.reload();
+          });
+      }
+    }
+
+    // Fungsi untuk mengubah peran pengguna yang dipilih menjadi admin atau sebaliknya
+    function setSelectedAsAdmin() {
+      // Mengambil semua pengguna yang dipilih (checkbox)
+      const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(checkbox => checkbox.value);
+
+      if (selectedUsers.length === 0) {
+        alert("Please select at least one user.");
+        return;
+      }
+
+      // Konfirmasi tindakan dan kirim request PATCH untuk memperbarui peran pengguna
+      if (confirm("Set selected users as Admin/Demote to User?")) {
+        fetch('/set-admin', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userIds: selectedUsers })
+        }).then(res => res.json())
+          .then(data => {
+            alert(data.message || 'Selected users have been set as admins.');
+            location.reload(); // Refresh halaman untuk memperbarui tampilan
+          });
+      }
+    }
+
+    // Fungsi untuk memilih atau membatalkan semua checkbox pengguna
+    function toggleSelectAll(source) {
+      const checkboxes = document.querySelectorAll('.user-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = source.checked;
+      });
+    }
+
+    // Fungsi untuk memfilter pengguna berdasarkan peran
+    function filterUsers() {
+      const filterValue = document.getElementById('roleFilter').value;
+      const rows = document.querySelectorAll('#userTableBody tr');
+
+      rows.forEach(row => {
+        // Menampilkan atau menyembunyikan baris berdasarkan peran pengguna
+        if (filterValue === 'all') {
+          row.style.display = '';
+        } else if (filterValue === 'admin' && !row.classList.contains('admin')) {
+          row.style.display = 'none';
+        } else if (filterValue === 'non-admin' && !row.classList.contains('non-admin')) {
+          row.style.display = 'none';
+        } else {
+          row.style.display = '';
+        }
+      });
+    }
+
+    // Inisialisasi penyaringan ketika halaman pertama kali dimuat
+    document.addEventListener('DOMContentLoaded', filterUsers);
+  </script>
+</body>
+</html>

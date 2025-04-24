@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Menentukan encoding karakter dan pengaturan viewport untuk desain responsif -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up</title>
+  
+  <!-- Gaya CSS untuk mendesain halaman Sign Up -->
+  <style>
+    /* Mengatur padding dan margin untuk semua elemen menjadi 0, serta menggunakan font default */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Gaya untuk body halaman dengan latar belakang gelap dan posisi konten di tengah */
+    body {
+      background: #0B0B38;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Desain untuk container form sign-up dengan latar belakang abu-abu dan bayangan */
+    .signup-container {
+      background: #5F6273;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Gaya untuk judul halaman Sign Up dengan warna teks yang lebih terang */
+    .signup-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #C8B3FF;
+    }
+
+    /* Mengatur form untuk menggunakan flexbox dan menyusun elemen secara vertikal */
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Gaya untuk label input dengan margin dan font tebal */
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #ccc;
+    }
+
+    /* Desain untuk input tipe teks, email, dan password dengan padding, border, dan font */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+
+    /* Desain untuk tombol submit Sign Up dengan warna latar belakang ungu muda dan transisi */
+    button {
+      background-color: #C8B3FF;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Efek hover untuk tombol Sign Up agar berwarna hijau dan teks biru terang */
+    button:hover {
+      background-color: #218838;
+      color: rgb(108, 203, 240);
+    }
+
+    /* Gaya footer untuk menampilkan teks yang lebih kecil dan rata tengah */
+    .footer {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    /* Gaya untuk link Sign In dalam footer */
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    /* Efek hover pada link Sign In */
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Container utama untuk form Sign Up -->
+  <div class="signup-container">
+    <!-- Judul halaman Sign Up -->
+    <h2>Create Your Account</h2>
+    
+    <!-- Formulir untuk input username, password, dan konfirmasi password -->
+    <form action="/signup" method="POST">
+      <!-- Label dan input untuk Username -->
+      <label for="name">Username</label>
+      <input type="text" name="name" id="name" required />
+
+      <!-- Label dan input untuk Password -->
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" required />
+
+      <!-- Label dan input untuk Konfirmasi Password -->
+      <label for="password">Confirm Password</label>
+      <input type="password" name="cPassword" id="cPassword" required />
+
+      <!-- Tombol untuk submit form Sign Up -->
+      <button type="submit" id="button">Sign Up &rarr;</button>
+    </form>
+
+    <!-- Footer dengan link ke halaman Sign In jika pengguna sudah memiliki akun -->
+    <div class="footer">
+      Already a member? <a href="/signin">Sign In</a>
+    </div>
+  </div>
+  
+  <!-- Menyertakan file JavaScript untuk menangani logika form Sign Up -->
+  <script src="/js/signup.js"></script>
+</body>
+</html>

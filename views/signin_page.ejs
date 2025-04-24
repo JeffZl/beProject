@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Menentukan encoding karakter dan viewport untuk desain responsif -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign In</title>
+  
+  <!-- Gaya CSS untuk mendesain halaman Sign In -->
+  <style>
+    /* Mengatur padding dan margin untuk semua elemen menjadi 0, serta menggunakan font default */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Gaya untuk body halaman dengan latar belakang ungu muda dan posisi konten di tengah */
+    body {
+      background: #C3B4FF;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Desain untuk container form sign-in dengan latar belakang gelap dan bayangan */
+    .signin-container {
+      background: #5F6273;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Gaya untuk judul halaman dengan warna teks yang lebih terang */
+    .signin-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #D1BFFF;
+    }
+
+    /* Mengatur form untuk menggunakan flexbox dan menyusun elemen secara vertikal */
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Gaya untuk label input dengan margin dan font tebal */
+    label {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #F2F2F2;
+    }
+
+    /* Desain untuk input tipe teks dan password dengan padding, border, dan font */
+    input[type="text"],
+    input[type="password"] {
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+
+    /* Desain untuk tombol submit Sign In dengan warna latar belakang hitam dan transisi */
+    button {
+      background-color: black;
+      color: white;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Efek hover untuk tombol Sign In agar berwarna lebih terang */
+    button:hover {
+      background-color: #D1BFFF;
+      color: #3a3a3a;
+    }
+
+    /* Gaya footer untuk menampilkan teks yang lebih kecil dan berwarna terang */
+    .footer {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #C3B4FF;
+    }
+
+    /* Gaya untuk link Sign Up dalam footer */
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    /* Efek hover pada link Sign Up */
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Container utama untuk form Sign In -->
+  <div class="signin-container">
+    <!-- Judul halaman Sign In -->
+    <h2>Sign In</h2>
+    
+    <!-- Formulir untuk input username dan password -->
+    <form id="signin-form">
+      <!-- Label dan input untuk Username -->
+      <label for="username">Username</label>
+      <input type="text" name="username" id="username" required>
+
+      <!-- Label dan input untuk Password -->
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" required>
+
+      <!-- Tombol untuk submit form Sign In -->
+      <button type="submit">Sign In &rarr;</button>
+    </form>
+
+    <!-- Footer dengan link ke halaman Sign Up jika pengguna belum memiliki akun -->
+    <div class="footer">
+      Don't have an account? <a href="/signup">Sign Up</a>
+    </div>
+  </div>
+
+  <!-- Menyertakan file JavaScript untuk menangani logika form Sign In -->
+  <script src="/js/signin.js"></script>
+</body>
+</html>

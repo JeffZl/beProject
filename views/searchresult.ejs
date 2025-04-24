@@ -1,0 +1,216 @@
+<div class="content">
+  <!-- Judul halaman pencarian hasil -->
+  <h2 style="color: white;">Search Results</h2>
+  
+  <!-- Tempat untuk menampilkan hasil pencarian musik -->
+  <div id="results" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1rem;"></div>
+</div>
+
+<!-- Menyertakan file JavaScript eksternal -->
+<script src="/js/app.js"></script>
+<script>
+  // Mendapatkan elemen input pencarian dan tempat hasil pencarian
+  const input = document.querySelector('.search input');
+  const results = document.getElementById('results');
+
+  // Mendapatkan parameter pencarian dari URL
+  const params = new URLSearchParams(window.location.search);
+  const queryParam = params.get("q");
+
+  // Fungsi untuk mengambil data dari API berdasarkan query pencarian
+  const fetchData = async (query) => {
+    try {
+      // Mengirim permintaan fetch untuk mendapatkan data berdasarkan query
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      // Mengosongkan hasil pencarian sebelumnya
+      results.innerHTML = "";
+
+      // Menampilkan maksimal 5 hasil pencarian
+      data.slice(0, 5).forEach(track => {
+        // Membuat elemen div untuk setiap lagu
+        const div = document.createElement('div');
+        div.style = "background:#1e2738; padding:10px; border-radius:10px; width:100%;display:flex;gap:1rem;";
+        div.innerHTML = `
+          <img src="${track.poster}" alt="${track.title}" style="width:60px;height:60px; border-radius:8px; object-fit:cover;">
+          <div>
+            <p style="color:#fff; font-size:1rem; margin:0;">${track.title}</p>
+            <p style="color:#888; font-size:0.85rem; margin:0.25rem 0 0;">${track.artist}</p>
+          </div>
+          <!-- Tombol untuk menambahkan lagu ke playlist -->
+          <button onclick="addToPlaylist('${track.title}', '${track.artist}', '${track.poster}', '${track.id}')" style="margin-left:auto; padding:10px; background-color:#28a745; color:white; border:none; border-radius:50%; cursor:pointer; width:40px; height:40px; display:flex; justify-content:center; align-items:center; font-size:16px;">+</button>
+        `;
+        results.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Search error:", err);
+      // Menampilkan pesan jika terjadi kesalahan dalam mengambil data
+      results.innerHTML = `<p style="color: red;">Something went wrong.</p>`;
+    }
+  };
+
+  // Event listener untuk mengatur musik yang sedang diputar dan kontrolnya
+  document.addEventListener("DOMContentLoaded", () => {
+    // Mendapatkan elemen kontrol musik
+    const seek = document.getElementById('seek');
+    const bar2 = document.getElementById('bar2');
+    const dot = document.getElementsByClassName('dot')[0];
+    const currentStart = document.getElementById('currentStart');
+    const currentEnd = document.getElementById('currentEnd');
+    const wave = document.getElementById('wave');
+
+    const vol_icon = document.getElementById("vol_icon");
+    const vol = document.getElementById("vol");
+    const vol_dot = document.getElementById("vol_dot");
+    const vol_bar = document.getElementsByClassName('vol_bar')[0];
+    const masterPlay = document.getElementById('masterPlay');
+
+    // Mengambil data musik yang terakhir diputar dari localStorage
+    const savedData = JSON.parse(localStorage.getItem("currentMusic"));
+    if (!savedData) return;
+
+    const { currentTime, volume, currentSong, isPlaying } = savedData;
+
+    // Membuat objek audio untuk lagu yang diputar
+    const music = new Audio(`audio/${currentSong.id}.mp3`);
+    music.currentTime = currentTime;
+    music.volume = volume;
+
+    // Menampilkan sampul lagu dan nama artis
+    document.getElementById('poster_master_play').src = currentSong.cover;
+    document.getElementById('title').innerHTML = `${currentSong.title}<br><div class="subtitle">${currentSong.artists.join(", ")}</div>`;
+
+    // Memulai musik jika sebelumnya diputar
+    if (isPlaying === 1) {
+      music.play();
+      masterPlay.classList.remove('bi-play-fill');
+      masterPlay.classList.add('bi-pause-fill');
+      wave?.classList.add('active2');
+    }
+
+    // Menangani perubahan durasi lagu saat dimuat
+    music.addEventListener('loadedmetadata', () => {
+      seek.max = Math.floor(music.duration);
+      const min = Math.floor(music.duration / 60);
+      const sec = String(Math.floor(music.duration % 60)).padStart(2, '0');
+      currentEnd.innerText = `${min}:${sec}`;
+    });
+
+    // Menangani pemutaran lagu yang selesai
+    music.addEventListener("ended", () => {
+      localStorage.setItem("currentMusic", JSON.stringify({
+        currentSong,
+        currentTime: 0,
+        volume: music.volume,
+        isPlaying: 0
+      }));
+    });
+
+    // Menambahkan event listener untuk tombol play/pause
+    masterPlay.addEventListener('click', () => {
+      if (music.paused || music.currentTime <= 0) {
+        music.play();
+        masterPlay.classList.remove('bi-play-fill');
+        masterPlay.classList.add('bi-pause-fill');
+        wave?.classList.add('active2');
+      } else {
+        music.pause();
+        masterPlay.classList.add('bi-play-fill');
+        masterPlay.classList.remove('bi-pause-fill');
+        wave?.classList.remove('active2');
+      }
+
+      localStorage.setItem("currentMusic", JSON.stringify({
+        currentSong,
+        currentTime: music.currentTime,
+        volume: music.volume,
+        isPlaying: music.paused ? 0 : 1
+      }));
+    });
+
+    // Menangani perubahan waktu lagu yang sedang diputar
+    music.addEventListener('timeupdate', () => {
+      const current = music.currentTime;
+      seek.value = Math.floor(current);
+      const min = Math.floor(current / 60);
+      const sec = String(Math.floor(current % 60)).padStart(2, '0');
+      currentStart.innerText = `${min}:${sec}`;
+
+      const progress = (current / music.duration) * 100;
+      bar2.style.width = `${progress}%`;
+      dot.style.left = `${progress}%`;
+    });
+
+    // Menangani perubahan posisi waktu lagu ketika slider diubah
+    seek.addEventListener('input', () => {
+      music.currentTime = seek.value;
+    });
+
+    // Menangani perubahan volume
+    vol.addEventListener("change", () => {
+      const volValue = vol.value;
+      music.volume = volValue / 100;
+      vol_bar.style.width = `${volValue}%`;
+      vol_dot.style.left = `${volValue}%`;
+
+      if (volValue == 0) {
+        vol_icon.className = "bi bi-volume-mute-fill";
+      } else if (volValue > 50) {
+        vol_icon.className = "bi bi-volume-up-fill";
+      } else {
+        vol_icon.className = "bi bi-volume-down-fill";
+      }
+    });
+  });
+
+  // Fungsi untuk menambahkan lagu ke playlist
+  const addToPlaylist = async (title, artist, poster, id) => {
+    const inputData = { id, title, artist, poster };
+    const token = document.cookie;
+
+    if (!token) {
+      alert("You need to log in to add songs to your playlist.");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/playlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(inputData)
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        alert(`Error: ${data.error || response.statusText}`);
+      } else {
+        alert("Track added to your playlist!");
+      }
+    } catch (err) {
+      console.error("Failed to add track:", err);
+      alert("Something went wrong while adding the track.");
+    }
+  };
+
+  // Jika ada query pencarian di URL, lakukan pencarian data
+  if (queryParam) {
+    fetchData(queryParam);
+  }
+
+  // Event listener untuk menangani pencarian saat pengguna mengetik
+  input.addEventListener('keyup', (e) => {
+    if (e.key === "Enter") {
+      const query = e.target.value.trim();
+      if (query) {
+        fetchData(query);
+      } else {
+        results.innerHTML = "";
+      }
+    }
+  });
+</script>

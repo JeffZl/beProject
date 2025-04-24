@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Music App - Welcome</title>
+  <style>
+    /* Reset dan pengaturan dasar untuk semua elemen */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Pengaturan styling untuk body halaman */
+    body {
+        background-color: #ab8bfa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Animasi untuk logo masuk dengan efek bounce */
+    @keyframes slideInBounce {
+        0% {
+            transform: translateX(-150px);
+            opacity: 0;
+        }
+        60% {
+            transform: translateX(10px);
+            opacity: 1;
+        }
+        80% {
+            transform: translateX(0);
+        }
+        90% {
+            transform: translateX(5px);
+        }
+        100% {
+            transform: translateX(0);
+        }
+    }
+
+    /* Animasi untuk logo dengan efek pencahayaan */
+    @keyframes slideInBounce1 {
+        0% {
+            transform: translateX(-150px);
+            opacity: 0;
+            filter: none;
+        }
+        40% {
+            transform: translateX(0px);
+            filter: brightness(1);
+        }
+        60% {
+            transform: translateX(10px);
+            opacity: 1;
+            filter: none;
+        }
+        80% {
+            transform: translateX(0);
+            filter: brightness(1);
+        }
+        90% {
+            transform: translateX(16px);
+            filter: brightness(14) hue-rotate(60deg);
+        }
+        100% {
+            transform: translateX(0);
+            filter: none;
+        }
+    }
+
+    /* Animasi untuk konten masuk dari kanan dengan efek pencahayaan */
+    @keyframes slideInBounce2 {
+        0% {
+            transform: translateX(150px);
+            opacity: 0;
+            filter: none;
+        }
+        40% {
+            transform: translateX(100px);
+            filter: brightness(1);
+        }
+        60% {
+            transform: translateX(10px);
+            opacity: 1;
+            filter: none;
+        }
+        80% {
+            transform: translateX(0);
+            filter: brightness(1);
+        }
+        90% {
+            transform: translateX(16px);
+            filter: brightness(14) hue-rotate(45deg);
+        }
+        100% {
+            transform: translateX(0);
+            filter: none;
+        }
+    }
+
+    /* Styling untuk logo dengan animasi slideInBounce1 */
+    .logo {
+        width: 60%;
+        max-width: 300px;
+        animation: slideInBounce1 1.05s ease-out forwards;
+    }
+
+    /* Efek tombol saat ditekan */
+    .main-btn:active,
+    .alt-btn:active {
+        transform: scale(1.05);
+    }
+
+    /* Transisi tombol */
+    .main-btn,
+    .alt-btn {
+        transition: transform 0.2s ease;
+    }
+
+    /* Container utama yang menyusun layout kiri dan kanan */
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 1200px;
+        background-color: #000;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    /* Styling untuk sisi kiri */
+    .left, .right {
+        flex: 1 1 50%;
+        min-width: 300px;
+        padding: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Styling untuk sisi kiri dengan warna latar belakang */
+    .left {
+        background-color: #C8B3FF;
+        max-width: 30%;
+    }
+
+    /* Styling untuk sisi kanan */
+    .right {
+        background-color: #111158;
+        color: #fff;
+        flex-direction: column;
+    }
+
+    /* Menyorot teks dengan warna khas */
+    .highlight {
+        color: #C8B3FF;
+    }
+
+    /* Styling untuk bagian hero yang menampilkan pesan utama */
+    .hero {
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        line-height: 1.4;
+        animation: slideInBounce2 0.8s ease-out;
+    }
+
+    /* Tombol utama */
+    .main-btn {
+        background-color: #D1BFFF;
+        color: #000;
+        padding: 14px;
+        border: none;
+        width: 100%;
+        font-weight: bold;
+        margin: 10px 0;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 16px;
+        animation: slideInBounce 0.8s ease-in-out;
+    }
+
+    /* Tombol alternatif (untuk login) */
+    .alt-btn {
+        background-color: gray;
+        border: 1px solid #D1BFFF;
+        color: #33dce1;
+        font-weight: 600;
+        padding: 12px;
+        margin: 6px 0;
+        border-radius: 30px;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        animation: slideInBounce 0.8s ease-in-out;
+    }
+
+    /* Menambahkan gambar pada tombol alternatif */
+    .alt-btn img {
+        vertical-align: middle;
+    }
+
+    /* Styling untuk logo kecil */
+    .mini-logo {
+        width: 40px;
+        margin-bottom: 20px;
+    }
+
+    /* Responsif untuk layar lebih kecil dari 768px */
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+        }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Kiri: Logo -->
+    <div class="left">
+      <img src="https://github.com/Excell-Hanzovin-Hakim/Jaxe/blob/main/JaxeBiru.png?raw=true" alt="Logo" class="logo" />
+    </div>
+
+    <!-- Kanan: Konten -->
+    <div class="right">
+      <div class="hero">
+        <!-- Judul utama dengan animasi -->
+        <h1>Simply lovely!<br>Your <span class="highlight">Songs</span>, Your Own <span class="highlight">World</span></h1>
+
+        <!-- Tombol Sign up -->
+        <a href="/signup" style="text-decoration:none;">
+          <button class="main-btn">Sign up</button>
+        </a>
+        <!-- Tombol Sign in -->
+        <a href="/signin" style="text-decoration:none;">
+          <button class="alt-btn">Sign in to your account</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
