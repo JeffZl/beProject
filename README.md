@@ -55,10 +55,6 @@ Aplikasi akan berjalan di: [http://localhost:3000](http://localhost:3000)
 ```
 /views         → Halaman EJS untuk SSR
 /public        → File statis (CSS, JS, gambar)
-/models        → Model MongoDB (User, Song, Playlist)
-/routes        → Rute API dan halaman
-/controllers   → Logika kontroler untuk setiap rute
-/middleware    → Middleware autentikasi & validasi
 ```
 
 ---
